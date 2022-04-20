@@ -1,28 +1,22 @@
 const express = require('express');
 const app = express();
-const morgan = require('morgan');
-const logger = require('./logger');
-const authorize = require('./authorize');
-// req => middleware => res
+let { people } = require('./data');
 
-// 1. use vs route
-// 2. options - our own / express / third party
+// static assets
+app.use(express.static('./methods-public'));
+// parse form data
+app.use(express.urlencoded({ extended: false }));
+app.get('/api/people', (req, res) => {
+	res.status(200).json({ success: true, data: people });
+});
 
-// app.use([logger, authorize]);
-// app.use(express.static('./public'))
-app.use(morgan('tiny'));
-app.get('/', (req, res) => {
-	return res.send('Home');
-});
-app.get('/about', (req, res) => {
-	return res.send('About');
-});
-app.get('/api/products', (req, res) => {
-	return res.send('Products');
-});
-app.get('/api/items', (req, res) => {
-	console.log(req.user);
-	return res.send('Items');
+app.post('/login', (req, res) => {
+	const { name } = req.body;
+	if (name) {
+		return res.status(200).send(`Welcome ${name}`);
+	}
+
+	res.status(401).send('Please Provide Credentials');
 });
 
 app.listen(5000, () => {
